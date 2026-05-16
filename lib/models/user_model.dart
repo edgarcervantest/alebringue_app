@@ -8,6 +8,7 @@ class UserModel {
   final String token;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String userType;
   UserModel({
     required this.id,
     required this.name,
@@ -15,6 +16,7 @@ class UserModel {
     required this.token,
     required this.createdAt,
     required this.updatedAt,
+    required this.userType,
   });
 
   UserModel copyWith({
@@ -24,6 +26,7 @@ class UserModel {
     String? token,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? userType,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -32,6 +35,7 @@ class UserModel {
       token: token ?? this.token,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      userType: userType ?? this.userType,
     );
   }
 
@@ -41,19 +45,21 @@ class UserModel {
       'name': name,
       'email': email,
       'token': token,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt.millisecondsSinceEpoch,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'userType': userType,
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      email: map['email'] as String,
-      token: map['token'] as String,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int),
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      token: map['token'] ?? '',
+      createdAt: DateTime.parse(map['createdAt']),
+      updatedAt: DateTime.parse(map['updatedAt']),
+      userType: map['userType'] ?? '',
     );
   }
 
@@ -63,7 +69,7 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, name: $name, email: $email, token: $token, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserModel(id: $id, name: $name, email: $email, token: $token, createdAt: $createdAt, updatedAt: $updatedAt, userType: $userType)';
   }
 
   @override
@@ -76,7 +82,8 @@ class UserModel {
       other.email == email &&
       other.token == token &&
       other.createdAt == createdAt &&
-      other.updatedAt == updatedAt;
+      other.updatedAt == updatedAt &&
+      other.userType == userType;
   }
 
   @override
@@ -86,6 +93,7 @@ class UserModel {
       email.hashCode ^
       token.hashCode ^
       createdAt.hashCode ^
-      updatedAt.hashCode;
+      updatedAt.hashCode ^
+      userType.hashCode;
   }
 }
