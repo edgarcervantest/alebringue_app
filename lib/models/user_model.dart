@@ -59,7 +59,7 @@ class UserModel {
       token: map['token'] ?? '',
       createdAt: DateTime.parse(map['createdAt']),
       updatedAt: DateTime.parse(map['updatedAt']),
-      userType: map['userType'] ?? '',
+      userType: map['userType'] ?? ''
     );
   }
 

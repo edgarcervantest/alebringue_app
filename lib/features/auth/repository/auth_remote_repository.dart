@@ -1,10 +1,15 @@
 import 'dart:convert';
 
-import 'package:frontend/models/user_model.dart';
+import 'package:alebringue/core/services/sp_service.dart';
+import 'package:alebringue/features/auth/repository/auth_local_repository.dart';
+import 'package:alebringue/models/user_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:frontend/core/constants/constants.dart';
+import 'package:alebringue/core/constants/constants.dart';
 
 class AuthRemoteRepository {
+  final spService = SpService();
+  final authLocalRepository = AuthLocalRepository();
+
   Future<UserModel> signUp({
     required String name,
     required String email,
@@ -49,6 +54,39 @@ class AuthRemoteRepository {
       return UserModel.fromJson(res.body);
     } catch (e) {
       throw e.toString();
+    }
+  }
+
+  Future<UserModel?> getUserData() async {
+    try {
+      final token = await spService.getToken();
+
+      if (token == null) {
+        return null;
+      }
+
+      final res = await http.post(
+        Uri.parse('${Constants.backendUri}/auth/tokenIsValid'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      if (res.statusCode != 200) {
+        return null;
+      }
+
+      final userResponse = await http.get(
+        Uri.parse('${Constants.backendUri}/auth'),
+        headers: {'Content-Type': 'application/json', 'x-auth-token': token},
+      );
+
+      if (userResponse.statusCode != 200 || jsonDecode(res.body) == false) {
+        throw jsonDecode(userResponse.body)['error'];
+      }
+      return UserModel.fromJson(userResponse.body);
+    } catch (e) {
+      final user = await authLocalRepository.getUser();
+
+      return user;
     }
   }
 }

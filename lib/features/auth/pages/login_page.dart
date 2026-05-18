@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
-import 'package:frontend/features/auth/pages/signup_page.dart';
+import 'package:alebringue/features/auth/cubit/auth_cubit.dart';
+import 'package:alebringue/features/auth/pages/signup_page.dart';
+import 'package:alebringue/features/home/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   static MaterialPageRoute<dynamic> route() =>
@@ -43,9 +44,11 @@ class _LoginPageState extends State<LoginPage> {
               context,
             ).showSnackBar(SnackBar(content: Text(state.error)));
           } else if (state is AuthLoggedIn) {
-            ScaffoldMessenger.of(
+            Navigator.pushAndRemoveUntil(
               context,
-            ).showSnackBar(const SnackBar(content: Text('¡Bienvenido!, ')));
+              HomePage.route(),
+              (_) => false,
+            );
             // Navigator.pushReplacement(context, LoginPage.route());
           }
         },
@@ -61,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Alebringüe',
+                    'alebringüe',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: Color(0xFFE4007C),
                       fontSize: 25,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
-import 'package:frontend/features/auth/pages/login_page.dart';
+import 'package:alebringue/features/auth/cubit/auth_cubit.dart';
+import 'package:alebringue/features/auth/pages/login_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignupPage extends StatefulWidget {
@@ -51,12 +51,11 @@ class _SignupPageState extends State<SignupPage> {
             ).showSnackBar(SnackBar(content: Text(state.error)));
           } else if (state is AuthSignUp) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('¡Registrado correctamente!, inicia sesión')),
+              const SnackBar(
+                content: Text('¡Registrado correctamente!, inicia sesión'),
+              ),
             );
-            Navigator.pushReplacement(
-              context,
-              LoginPage.route(),
-            );
+            Navigator.pushReplacement(context, LoginPage.route());
           }
         },
         builder: (context, state) {
@@ -71,7 +70,7 @@ class _SignupPageState extends State<SignupPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Alebringüe',
+                    'alebringüe',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: Color(0xFFE4007C),
                       fontSize: 25,
