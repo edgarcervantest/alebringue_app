@@ -107,11 +107,11 @@ class _MyAppState extends State<MyApp> {
             fontSize: 25,
             color: Color(0xFFFAF9F6),
           ),
-          actionsIconTheme: IconThemeData(color: Color(0xFFFAF9F6)),
+          actionsIconTheme: IconThemeData(color: Color(0xFFFAF9F6), size: 30),
         ),
         navigationBarTheme: const NavigationBarThemeData(
           backgroundColor: Color(0xFF131313),
-          indicatorColor: Color(0xFFE0007C),
+          indicatorColor: Color(0xFF00E5FF),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           labelTextStyle: WidgetStatePropertyAll(
             TextStyle(

@@ -1,8 +1,7 @@
 // lib/home_page.dart
 import 'package:alebringue/features/home/pages/home_content_page.dart'; // 1. Importa tu nueva página
-import 'package:alebringue/features/lessons/pages/lessons_page.dart';
+import 'package:alebringue/features/lessons/pages/lesson_page.dart';
 import 'package:alebringue/features/settings/pages/settings_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,6 +31,7 @@ class _HomePageState extends State<HomePage> {
       'page': const SettingsPage(),
       'title': 'Ajustes',
     },
+  
   ];
 
   @override
@@ -41,7 +41,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(CupertinoIcons.profile_circled),
+          icon: const Icon(Icons.account_circle_outlined),
+          iconSize: 30,
           color: Theme.of(context).appBarTheme.foregroundColor,
           onPressed: () {
             // Acción del perfil

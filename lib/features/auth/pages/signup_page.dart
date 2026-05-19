@@ -30,7 +30,6 @@ class _SignupPageState extends State<SignupPage> {
 
   void signUpUser() {
     if (formKey.currentState != null && formKey.currentState!.validate()) {
-      // guarda datos del usuario
       context.read<AuthCubit>().signUp(
         name: nameController.text.trim(),
         email: emailController.text.trim(),
@@ -60,109 +59,137 @@ class _SignupPageState extends State<SignupPage> {
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
-          return Padding(
-            padding: EdgeInsets.all(15.0),
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'alebringüe',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Color(0xFFE4007C),
-                      fontSize: 25,
-                      fontFamily: 'Bungee',
-                    ),
-                  ),
-                  Text(
-                    'Registrarse',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 30),
-                  TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(hintText: 'Nombre de usuario'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "El nombre de usuario es requerido";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  TextFormField(
-                    controller: emailController,
-                    decoration: const InputDecoration(hintText: 'Correo'),
-                    validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          !RegExp(
-                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                          ).hasMatch(value)) {
-                        return "El correo no es válido";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  TextFormField(
-                    controller: passwordController,
-                    decoration: InputDecoration(hintText: 'Contraseña'),
-                    validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          value.trim().length <= 7) {
-                        return "La contraseña debe contener al menos 8 caracteres";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  TextFormField(
-                    controller: passwordConfirmationController,
-                    decoration: InputDecoration(
-                      hintText: 'Confirmar contraseña',
-                    ),
-                    validator: (value) {
-                      if (value != passwordController.text) {
-                        return "Las contraseñas no coinciden";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: signUpUser,
-                    child: const Text('CREAR CUENTA'),
-                  ),
-                  const SizedBox(height: 30),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(LoginPage.route());
-                    },
-                    child: RichText(
-                      text: TextSpan(
-                        text: '¿Ya tienes una cuenta? ',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        children: [
-                          TextSpan(
-                            text: 'Iniciar sesión',
-                            style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFE4007C),
+
+          // 1. Usamos LayoutBuilder para conocer el alto máximo disponible de la pantalla
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                // 2. Permite el scroll solo si el teclado bloquea la pantalla
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    // 3. Mantiene la coherencia de tamaños internos
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              height: 20,
+                            ), // Margen superior de seguridad
+                            Image.asset(
+                              'assets/images/logos/alt_name_logo_transparent.png',
+                              height: 90,
+                            ),
+                            Text(
+                              'Registrarse',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 30),
+                            TextFormField(
+                              controller: nameController,
+                              decoration: const InputDecoration(
+                                hintText: 'Nombre de usuario',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "El nombre de usuario es requerido";
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: emailController,
+                              decoration: const InputDecoration(
+                                hintText: 'Correo',
+                              ),
+                              validator: (value) {
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    !RegExp(
+                                      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                                    ).hasMatch(value)) {
+                                  return "El correo no es válido";
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: passwordController,
+                              decoration: const InputDecoration(
+                                hintText: 'Contraseña',
+                              ),
+                              obscureText: true, // Recomendado para contraseñas
+                              validator: (value) {
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    value.trim().length <= 7) {
+                                  return "La contraseña debe contener al menos 8 caracteres";
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: passwordConfirmationController,
+                              decoration: const InputDecoration(
+                                hintText: 'Confirmar contraseña',
+                              ),
+                              obscureText: true,
+                              validator: (value) {
+                                if (value != passwordController.text) {
+                                  return "Las contraseñas no coinciden";
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 30),
+                            ElevatedButton(
+                              onPressed: signUpUser,
+                              child: const Text('CREAR CUENTA'),
+                            ),
+                            const SizedBox(height: 30),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(LoginPage.route());
+                              },
+                              child: RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  text: '¿Ya tienes una cuenta? ',
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                  children: [
+                                    TextSpan(
+                                      text: 'Iniciar sesión',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFFE4007C),
+                                          ),
+                                    ),
+                                  ],
                                 ),
-                          ),
-                        ],
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ), // Margen inferior de seguridad
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),

@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
+        android:usesCleartextTraffic="true"
         android:label="Alebringüe"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_mipmap_xxxxhdpi">
+        android:icon="@mipmap/launcher_mipmap_xxxhdpi">
         <activity
             android:name=".MainActivity"
             android:exported="true"

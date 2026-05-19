@@ -2,28 +2,32 @@
 import 'dart:convert';
 
 class LessonModel {
-  final String id;
+  final int id;
   final String title;
   final String description;
-  final String levelId;
+  final int levelId;
+  final String levelName;
   LessonModel({
     required this.id,
     required this.title,
     required this.description,
     required this.levelId,
+    required this.levelName,
   });
 
   LessonModel copyWith({
-    String? id,
+    int? id,
     String? title,
     String? description,
-    String? levelId,
+    int? levelId,
+    String? levelName,
   }) {
     return LessonModel(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       levelId: levelId ?? this.levelId,
+      levelName: levelName ?? this.levelName,
     );
   }
 
@@ -33,15 +37,17 @@ class LessonModel {
       'title': title,
       'description': description,
       'levelId': levelId,
+      'levelName': levelName,
     };
   }
 
   factory LessonModel.fromMap(Map<String, dynamic> map) {
     return LessonModel(
-      id: map['id'] as String,
+      id: map['id'] as int,
       title: map['title'] as String,
       description: map['description'] as String,
-      levelId: map['levelId'] as String,
+      levelId: map['levelId'] as int,
+      levelName: map['levelName'] as String,
     );
   }
 
@@ -51,7 +57,7 @@ class LessonModel {
 
   @override
   String toString() {
-    return 'LessonModel(id: $id, title: $title, description: $description, levelId: $levelId)';
+    return 'LessonModel(id: $id, title: $title, description: $description, levelId: $levelId, levelName: $levelName)';
   }
 
   @override
@@ -62,7 +68,8 @@ class LessonModel {
       other.id == id &&
       other.title == title &&
       other.description == description &&
-      other.levelId == levelId;
+      other.levelId == levelId &&
+      other.levelName == levelName;
   }
 
   @override
@@ -70,6 +77,7 @@ class LessonModel {
     return id.hashCode ^
       title.hashCode ^
       description.hashCode ^
-      levelId.hashCode;
+      levelId.hashCode ^
+      levelName.hashCode;
   }
 }
