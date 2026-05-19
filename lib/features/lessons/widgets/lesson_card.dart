@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:alebringue/models/lesson_model.dart'; // 1. Importamos el modelo
 
 class LessonCard extends StatelessWidget {
+  
   // 2. Reemplazamos los 3 Strings sueltos por el modelo completo
   final LessonModel lesson;
 
@@ -54,7 +55,7 @@ class LessonCard extends StatelessWidget {
             onPressed: () {
               // 6. Ahora sí le enviamos el objeto 'lesson' completo a la página de contenido
               Navigator.of(context).push(
-                LessonContentPage.route(lesson: lesson),
+                LessonContentPage.route(lesson: lesson ),
               );
             },
             style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
