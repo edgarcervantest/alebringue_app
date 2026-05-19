@@ -47,7 +47,10 @@ dependencies:
   speech_to_text: ^7.3.0
   whisper_ggml: ^1.7.0
   path_provider: ^2.1.5
+<<<<<<< HEAD
   connectivity_plus: ^7.1.1
+=======
+>>>>>>> 860a144 (feat: interfaz para grabacion en lecciones)
 
 dev_dependencies:
   flutter_test:

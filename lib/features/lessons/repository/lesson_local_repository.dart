@@ -26,7 +26,7 @@ class LessonLocalRepository {
         final byteData = await rootBundle.load(_assetPath);
         await localFile.writeAsBytes(byteData.buffer.asUint8List());
       }
-      
+
       _modelPath = localPath;
       _isInitialized = true;
       debugPrint("Modelo inicializado correctamente en: $_modelPath");

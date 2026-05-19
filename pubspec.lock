@@ -408,6 +408,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+<<<<<<< HEAD
   nm:
     dependency: transitive
     description:
@@ -416,6 +417,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
+=======
+>>>>>>> 860a144 (feat: interfaz para grabacion en lecciones)
   objective_c:
     dependency: transitive
     description:
