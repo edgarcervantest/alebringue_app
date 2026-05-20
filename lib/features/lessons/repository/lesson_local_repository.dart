@@ -1,71 +1,61 @@
+// lib/features/lessons/repository/lesson_local_repository.dart
+
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
-import 'package:whisper_ggml/whisper_ggml.dart';
+import 'package:vosk_flutter_service/vosk_flutter.dart';
 
 class LessonLocalRepository {
-  // El controller se instancia de forma lazy para evitar MissingPluginException
-  // si el código se importa en un contexto donde el plugin no está registrado.
-  WhisperController? _controller;
-
-  String? _modelPath;
+  // Instancia única del plugin de Vosk
+  final VoskFlutterPlugin _vosk = VoskFlutterPlugin.instance();
+  
+  Model? _model;
+  Recognizer? _recognizer;
   bool _isInitialized = false;
 
-  // Sincronizamos llamadas concurrentes a init() para evitar doble copia.
+  // Sincronizamos llamadas concurrentes a init()
   Completer<void>? _initCompleter;
 
-  static const String _assetPath = 'assets/models/ggml-small.bin';
-  static const String _modelFileName = 'ggml-small.bin';
+  // RECUERDA: Vosk maneja los modelos como archivos comprimidos .zip en assets
+  static const String _assetPath = 'assets/models/vosk-model-small-en-us-0.15.zip';
+  static const int _sampleRate = 16000; // Frecuencia estándar recomendada para Vosk
 
   // ──────────────────────────────────────────────────────────────────────────
   // INICIALIZACIÓN
   // ──────────────────────────────────────────────────────────────────────────
 
-  /// Copia el modelo a la carpeta de documentos la primera vez y lo deja listo.
-  /// Las llamadas concurrentes esperan a la misma operación (no duplican copia).
   Future<void> init() async {
-    // ── Guardia Web ────────────────────────────────────────────────────────
-    if (kIsWeb) {
-      throw UnsupportedError(
-        'whisper_ggml no es compatible con Flutter Web. '
-        'Usa el backend remoto en esta plataforma.',
-      );
-    }
-
-    // Ya inicializado: regresa inmediatamente.
     if (_isInitialized) return;
-
-    // Si hay una init en curso, espera a que termine (evita doble trabajo).
-    if (_initCompleter != null) {
-      return _initCompleter!.future;
-    }
+    if (_initCompleter != null) return _initCompleter!.future;
 
     _initCompleter = Completer<void>();
 
     try {
-      _controller = WhisperController();
+      debugPrint('[LocalRepo] Desempaquetando e inicializando modelo Vosk...');
+      
+      // 1. ModelLoader extrae automáticamente el zip de assets al almacenamiento local
+      final modelPath = await ModelLoader().loadFromAssets(_assetPath);
+      
+      // 2. Cargamos el modelo en memoria utilizando la ruta extraída
+      _model = await _vosk.createModel(modelPath);
+      
+      // 3. Creamos el reconocedor configurando la tasa de muestreo del audio
+      _recognizer = await _vosk.createRecognizer(
+        model: _model!,
+        sampleRate: _sampleRate,
+      );
 
-      final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final String localPath = '${appDocDir.path}/$_modelFileName';
-      final File localFile = File(localPath);
+      // 4. Habilitamos el reconocimiento de palabras
+      await _recognizer!.setWords(words: true);
 
-      if (!await localFile.exists()) {
-        debugPrint('[LocalRepo] Copiando modelo desde assets → $localPath');
-        final byteData = await rootBundle.load(_assetPath);
-        await localFile.writeAsBytes(byteData.buffer.asUint8List());
-      } else {
-        debugPrint('[LocalRepo] Modelo ya existe en: $localPath');
-      }
-
-      _modelPath = localPath;
       _isInitialized = true;
       _initCompleter!.complete();
+      debugPrint('[LocalRepo] Vosk inicializado con éxito.');
     } catch (e) {
-      final error = Exception('Error al cargar el modelo local: $e');
+      final error = Exception('Error al cargar el modelo local de Vosk: $e');
       _initCompleter!.completeError(error);
-      // Reseteamos para que el próximo intento vuelva a intentar.
       _initCompleter = null;
       rethrow;
     }
@@ -75,7 +65,7 @@ class LessonLocalRepository {
   // TRANSCRIPCIÓN
   // ──────────────────────────────────────────────────────────────────────────
 
-  /// Transcribe el archivo de audio usando el modelo Whisper local.
+/// Transcribe el archivo de audio usando el modelo Vosk local.
   Future<String> transcribeLocally(File audioFile) async {
     if (kIsWeb) {
       throw UnsupportedError(
@@ -87,21 +77,73 @@ class LessonLocalRepository {
       await init();
     }
 
-    debugPrint('[LocalRepo] Transcribiendo: ${audioFile.path}');
-
-    final result = await _controller!.transcribe(
-      model: WhisperModel.small,
-      audioPath: audioFile.path,
-      lang: 'es',
-    );
-
-    if (result == null || result.transcription.text.trim().isEmpty) {
-      throw Exception(
-        'Whisper no produjo transcripción. '
-        'Verifica que el audio tenga contenido de voz claro.',
-      );
+    if (_recognizer == null) {
+      throw Exception('El Recognizer de Vosk no está disponible.');
     }
 
-    return result.transcription.text.trim();
+    try {
+      // 1. DEFENSA DE HARDWARE: Pausa de sincronización de archivos (300ms)
+      // Da tiempo al sistema operativo para liberar y cerrar el archivo .wav en disco
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!await audioFile.exists()) {
+        throw Exception('El archivo de audio no existe en la ruta: ${audioFile.path}');
+      }
+
+      debugPrint('[LocalRepo] Leyendo bytes del archivo...');
+      final Uint8List fileBytes = await audioFile.readAsBytes();
+      
+      if (fileBytes.length <= 44) {
+        throw Exception('El archivo de audio está vacío o corrupto.');
+      }
+      
+      // Omitimos los 44 bytes del encabezado WAV para enviar PCM puro
+      final Uint8List pcmBytes = fileBytes.sublist(44);
+      
+      // 2. PROCESAMIENTO SEGURO POR CHUNKS (Tamaño óptimo: 8192 bytes)
+      const int chunkSize = 8192; 
+      int offset = 0;
+      
+      debugPrint('[LocalRepo] Transmitiendo ${pcmBytes.length} bytes a la capa C++...');
+      while (offset < pcmBytes.length) {
+        int end = offset + chunkSize;
+        if (end > pcmBytes.length) {
+          end = pcmBytes.length;
+        }
+        
+        final Uint8List chunk = pcmBytes.sublist(offset, end);
+        
+        // Enviamos el fragmento al motor de Vosk
+        await _recognizer!.acceptWaveformBytes(chunk);
+        
+        // DEFENSA DE HARDWARE: Pausa de alivio para el puente JNI (5ms)
+        // Evita que el hilo nativo de Android se congele y colapse la Activity
+        await Future.delayed(const Duration(milliseconds: 5));
+        
+        offset = end;
+      }
+      
+      // 3. Solicitar el cierre y decodificación final del texto
+      final String jsonResult = await _recognizer!.getFinalResult();
+      
+      // final Map<String, dynamic> parsedJson = jsonDecode(jsonResult);
+      // final String text = (parsedJson['text'] as String? ?? '').trim();
+
+      debugPrint('[LocalRepo] Transcripción local finalizada con éxito: "$jsonResult"');
+      return jsonResult;
+    } catch (e) {
+      debugPrint('[LocalRepo] Error crítico en transcripción local: $e');
+      rethrow;
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // LIMPIEZA DE RECURSOS
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Libera de forma explícita la memoria ocupada por el Recognizer nativo
+  void dispose() {
+    _recognizer?.dispose();
+    _recognizer = null;
   }
 }

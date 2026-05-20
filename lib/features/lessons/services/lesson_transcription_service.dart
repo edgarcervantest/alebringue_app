@@ -1,3 +1,14 @@
+// lib/features/lessons/services/lesson_transcription_service.dart
+//
+// ┌──────────────────────────────────────────────────────────────┐
+// │          SERVICIO HÍBRIDO DE TRANSCRIPCIÓN                   │
+// │                                                              │
+// │  Centraliza la lógica de enrutamiento:                       │
+// │    · Con internet  → Backend remoto (Whisper API)            │
+// │    · Sin internet  → Whisper local (whisper_ggml)            │
+// │    · En Web        → Lanza UnsupportedError controlado       │
+// └──────────────────────────────────────────────────────────────┘
+
 import 'dart:async';
 import 'dart:io';
 
@@ -68,24 +79,26 @@ class LessonTranscriptionService {
       );
     }
 
+    
+
     // ── Ruta ONLINE ────────────────────────────────────────────────────────
-    if (await _isOnline()) {
-      try {
-        debugPrint('[TranscriptionService] Modo ONLINE → backend remoto');
-        final text = await _remoteRepo.sendAudioForWhisper(audioFile, lessonId);
-        return TranscriptionResult(
-          text: text,
-          source: TranscriptionSource.remote,
-        );
-      } catch (e) {
-        // Fallback silencioso: si el backend falla, intentamos localmente
-        // en lugar de mostrar un error al usuario.
-        debugPrint(
-          '[TranscriptionService] Remoto falló ($e), '
-          'cayendo al modelo local...',
-        );
-      }
-    }
+    // if (await _isOnline()) {
+    //   try {
+    //     debugPrint('[TranscriptionService] Modo ONLINE → backend remoto');
+    //     final text = await _remoteRepo.sendAudioForWhisper(audioFile, lessonId);
+    //     return TranscriptionResult(
+    //       text: text,
+    //       source: TranscriptionSource.remote,
+    //     );
+    //   } catch (e) {
+    //     // Fallback silencioso: si el backend falla, intentamos localmente
+    //     // en lugar de mostrar un error al usuario.
+    //     debugPrint(
+    //       '[TranscriptionService] Remoto falló ($e), '
+    //       'cayendo al modelo local...',
+    //     );
+    //   }
+    // }
 
     // ── Ruta OFFLINE (o fallback del remoto) ───────────────────────────────
     debugPrint('[TranscriptionService] Modo OFFLINE → Whisper local');

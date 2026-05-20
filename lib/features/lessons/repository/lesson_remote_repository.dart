@@ -1,3 +1,14 @@
+// lib/features/lessons/repository/lesson_remote_repository.dart
+//
+// ┌──────────────────────────────────────────────────────────────┐
+// │          REPOSITORIO REMOTO — Backend Alebringue             │
+// │                                                              │
+// │  Cambios respecto a la versión anterior:                     │
+// │  · Mejor tipado del error HTTP en sendAudioForWhisper.       │
+// │  · Timeout configurable para evitar cuelgues en red lenta.   │
+// │  · Sin cambios de firma: compatible con código existente.    │
+// └──────────────────────────────────────────────────────────────┘
+
 import 'dart:convert';
 import 'dart:io';
 

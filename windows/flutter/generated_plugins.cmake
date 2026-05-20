@@ -4,13 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
-<<<<<<< HEAD
   connectivity_plus
-=======
->>>>>>> 860a144 (feat: interfaz para grabacion en lecciones)
   permission_handler_windows
   record_windows
-  speech_to_text_windows
+  vosk_flutter_service
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

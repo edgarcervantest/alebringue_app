@@ -44,13 +44,19 @@ dependencies:
   record: ^6.2.0
   audioplayers: ^6.6.0
   permission_handler: ^12.0.1
-  speech_to_text: ^7.3.0
   whisper_ggml: ^1.7.0
   path_provider: ^2.1.5
+  connectivity_plus: ^7.1.1
+  vosk_flutter_service: ^0.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+
+dependency_overrides:
+  permission_handler: ^12.0.1
+  http: ^1.6.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -95,7 +101,7 @@ flutter:
     - assets/images/mascot/pensativo.svg
     - assets/images/mascot/sorprendido.svg
     - assets/images/mascot/triste.svg
-    - assets/models/ggml-small.bin
+    - assets/models/vosk-model-small-en-us-0.15.zip
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

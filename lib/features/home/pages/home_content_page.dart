@@ -11,6 +11,7 @@ class HomeContentPage extends StatelessWidget {
   static const String mascotAlegre = 'assets/images/mascot/alegre.svg';
   static const String mascotTriste = 'assets/images/mascot/triste.svg';
   static const String mascotSorprendido = 'assets/images/mascot/sorprendido.svg';
+  static const String mascotEnojado = 'assets/images/mascot/enojado.svg';
 
   @override
   Widget build(BuildContext context) {
