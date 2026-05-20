@@ -1,62 +1,107 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:whisper_ggml/whisper_ggml.dart';
 
 class LessonLocalRepository {
-  final WhisperController _controller = WhisperController();
+  // El controller se instancia de forma lazy para evitar MissingPluginException
+  // si el código se importa en un contexto donde el plugin no está registrado.
+  WhisperController? _controller;
+
   String? _modelPath;
   bool _isInitialized = false;
 
-  // Ruta exacta dentro de tus assets
-  final String _assetPath = 'assets/models/ggml-small.bin';
+  // Sincronizamos llamadas concurrentes a init() para evitar doble copia.
+  Completer<void>? _initCompleter;
 
-  /// 1. Inicializa el modelo copiándolo a memoria interna
+  static const String _assetPath = 'assets/models/ggml-small.bin';
+  static const String _modelFileName = 'ggml-small.bin';
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // INICIALIZACIÓN
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Copia el modelo a la carpeta de documentos la primera vez y lo deja listo.
+  /// Las llamadas concurrentes esperan a la misma operación (no duplican copia).
   Future<void> init() async {
+    // ── Guardia Web ────────────────────────────────────────────────────────
+    if (kIsWeb) {
+      throw UnsupportedError(
+        'whisper_ggml no es compatible con Flutter Web. '
+        'Usa el backend remoto en esta plataforma.',
+      );
+    }
+
+    // Ya inicializado: regresa inmediatamente.
     if (_isInitialized) return;
 
+    // Si hay una init en curso, espera a que termine (evita doble trabajo).
+    if (_initCompleter != null) {
+      return _initCompleter!.future;
+    }
+
+    _initCompleter = Completer<void>();
+
     try {
+      _controller = WhisperController();
+
       final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final String localPath = '${appDocDir.path}/ggml-small.bin';
+      final String localPath = '${appDocDir.path}/$_modelFileName';
       final File localFile = File(localPath);
 
-      // Si el archivo ya existe, no lo volvemos a copiar (ahorra tiempo)
       if (!await localFile.exists()) {
+        debugPrint('[LocalRepo] Copiando modelo desde assets → $localPath');
         final byteData = await rootBundle.load(_assetPath);
         await localFile.writeAsBytes(byteData.buffer.asUint8List());
+      } else {
+        debugPrint('[LocalRepo] Modelo ya existe en: $localPath');
       }
 
       _modelPath = localPath;
       _isInitialized = true;
-      debugPrint("Modelo inicializado correctamente en: $_modelPath");
+      _initCompleter!.complete();
     } catch (e) {
-      throw Exception("Error al cargar el modelo local: $e");
+      final error = Exception('Error al cargar el modelo local: $e');
+      _initCompleter!.completeError(error);
+      // Reseteamos para que el próximo intento vuelva a intentar.
+      _initCompleter = null;
+      rethrow;
     }
   }
 
-  /// 2. Transcribe el audio localmente
+  // ──────────────────────────────────────────────────────────────────────────
+  // TRANSCRIPCIÓN
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Transcribe el archivo de audio usando el modelo Whisper local.
   Future<String> transcribeLocally(File audioFile) async {
+    if (kIsWeb) {
+      throw UnsupportedError(
+        'La transcripción local no está disponible en Flutter Web.',
+      );
+    }
+
     if (!_isInitialized) {
       await init();
     }
 
-    // Nota: whisper_ggml suele pedir un Enum para identificar el modelo,
-    // pero si estás usando un custom bin, verifica si tu librería permite
-    // pasar el path directamente. Si la librería te obliga a usar 'WhisperModel',
-    // asegúrate de que el nombre del asset coincida con lo que el controller espera.
-    
-    // Asumiendo que la librería permite la transcripción con el modelo cargado:
-    final result = await _controller.transcribe(
-      model: WhisperModel.small, // Asegúrate de que esto coincida con tu bin
+    debugPrint('[LocalRepo] Transcribiendo: ${audioFile.path}');
+
+    final result = await _controller!.transcribe(
+      model: WhisperModel.small,
       audioPath: audioFile.path,
-      lang: 'es', // Lenguaje principal para tu modelo
+      lang: 'es',
     );
 
-    if (result == null || result.transcription.text.isEmpty) {
-      throw Exception("No se pudo obtener transcripción");
+    if (result == null || result.transcription.text.trim().isEmpty) {
+      throw Exception(
+        'Whisper no produjo transcripción. '
+        'Verifica que el audio tenga contenido de voz claro.',
+      );
     }
 
-    return result.transcription.text;
+    return result.transcription.text.trim();
   }
 }
