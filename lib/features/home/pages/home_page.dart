@@ -1,7 +1,10 @@
 // lib/home_page.dart
+import 'package:alebringue/features/bringui/bringui_page.dart';
+import 'package:alebringue/features/classes/class_page.dart';
 import 'package:alebringue/features/home/pages/home_content_page.dart'; // 1. Importa tu nueva página
 import 'package:alebringue/features/lessons/pages/lesson_page.dart';
-import 'package:alebringue/features/settings/pages/settings_page.dart';
+// import 'package:alebringue/features/settings/pages/settings_page.dart';
+import 'package:alebringue/features/translator/translator_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -28,8 +31,16 @@ class _HomePageState extends State<HomePage> {
       'title': 'Lecciones',
     },
     {
-      'page': const SettingsPage(),
-      'title': 'Ajustes',
+      'page': const ClassPage(),
+      'title': 'Clases',
+    },
+        {
+      'page': const BringuiPage(),
+      'title': 'Bringüi',
+    },
+    {
+      'page': const TranslatorPage(),
+      'title': 'Traductor',
     },
   
   ];
@@ -89,9 +100,19 @@ class _HomePageState extends State<HomePage> {
             label: 'Lecciones',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.settings),
-            icon: Icon(Icons.settings_outlined),
-            label: 'Ajustes',
+            selectedIcon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
+            label: 'Clases',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.emoji_objects),
+            icon: Icon(Icons.emoji_objects_outlined),
+            label: 'Bringüi',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.translate),
+            icon: Icon(Icons.translate_outlined),
+            label: 'Traductor',
           ),
         ],
       ),

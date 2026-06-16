@@ -3,138 +3,322 @@ import 'package:alebringue/features/lessons/widgets/lesson_card.dart';
 import 'package:flutter/material.dart';
 import 'package:alebringue/models/lesson_model.dart';
 
+// ── TOKENS ───────────────────────────────────────────────────────────────────
+
+const _kBone = Color(0xFFFAF9F6);
+const _kCarbon = Color(0xFF131313);
+
+const _kMagenta = Color(0xFFE0007C);
+const _kCyan = Color(0xFF00E5FF);
+
+const _kSurface = Color(0xFF1C1C1C);
+const _kSurface2 = Color(0xFF262626);
+
+const _kBorderDim = Color(0xFF373737);
+const _kTextDim = Color(0xFF888888);
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 class LessonsPage extends StatelessWidget {
   static MaterialPageRoute<dynamic> route() =>
       MaterialPageRoute(builder: (context) => const LessonsPage());
 
   const LessonsPage({super.key});
-  static const String assetName = 'assets/images/mascot/pensativo.svg';
 
   @override
   Widget build(BuildContext context) {
-    // 1. Inicializamos theme y colors para que no marquen error
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     final lessonRepo = LessonRepository();
 
     return Scaffold(
+      backgroundColor: _kCarbon,
+
+      // appBar: AppBar(
+      //   backgroundColor: _kCarbon,
+      //   elevation: 0,
+      //   surfaceTintColor: Colors.transparent,
+      //   iconTheme: const IconThemeData(color: _kBone),
+      //   actions: [
+      //     IconButton(
+      //       onPressed: () {},
+      //       icon: const Icon(Icons.local_fire_department_rounded),
+      //       color: _kMagenta,
+      //     ),
+      //     const SizedBox(width: 8),
+      //   ],
+      // ),
+
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(
-            16.0,
-          ), // Padding general para alinear todo
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // --- TARJETA DE PROGRESO DIARIO (Fija arriba) ---
-              Center(
-                child: Text(
-                  'Tu meta diaria',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFFAF9F6),
-                    // Turquesa
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Card(
-                color: colors.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.menu_book_rounded,
-                                color: Color(0xFFFAF9F6),
+        child: FutureBuilder<List<LessonModel>>(
+          future: lessonRepo.fetchLessons(),
+          builder: (context, snapshot) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // // ── HEADER ─────────────────────────────────────────
+                  // const Text(
+                  //   'Lecciones',
+                  //   style: TextStyle(
+                  //     fontFamily: 'Bungee',
+                  //     fontSize: 34,
+                  //     color: _kBone,
+                  //     letterSpacing: 0.8,
+                  //     height: 1.1,
+                  //   ),
+                  // ),
+
+                  // const SizedBox(height: 4),
+
+                  // const Text(
+                  //   'Continúa tu progreso diario',
+                  //   style: TextStyle(fontSize: 14, color: _kTextDim),
+                  // ),
+
+                  const SizedBox(height: 28),
+
+                  // ── CARD META ─────────────────────────────────────
+                  Container(
+                    padding: const EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      color: _kSurface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: _kBorderDim, width: 1.5),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: _kCyan,
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Lecciones diarias',
+                              child: const Icon(
+                                Icons.menu_book_rounded,
+                                color: _kCarbon,
+                                size: 24,
+                              ),
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            const Expanded(
+                              child: Text(
+                                'Tu meta',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontFamily: 'Bungee',
+                                  fontSize: 18,
+                                  color: _kBone,
+                                  letterSpacing: 0.4,
                                 ),
                               ),
-                            ],
+                            ),
+
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _kMagenta,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  '2 / 3',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: _kBone,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        const Text(
+                          'Completa una lección más para mantener tu racha activa.',
+                          style: TextStyle(
+                            color: _kTextDim,
+                            fontSize: 13,
+                            height: 1.4,
                           ),
-                          Text(
-                            '2 / 3',
-                            style: TextStyle(
-                              color: colors.secondary,
-                              fontWeight: FontWeight.bold,
+                        ),
+
+                        const SizedBox(height: 22),
+
+                        Container(
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: _kSurface2,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: const LinearProgressIndicator(
+                              value: 0.66,
+                              minHeight: 14,
+                              backgroundColor: _kSurface2,
+                              valueColor: AlwaysStoppedAnimation<Color>(_kCyan),
                             ),
                           ),
-                        ],
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        const Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '66% completado',
+                            style: TextStyle(
+                              color: _kCyan,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 34),
+
+                  // ── SECTION TITLE ────────────────────────────────
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Lecciones',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Bungee',
+                            fontSize: 20,
+                            color: _kBone,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 15),
-                      // Barra de progreso estilizada
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: LinearProgressIndicator(
-                          value: 0.66,
-                          minHeight: 12,
-                          backgroundColor: Colors.grey.shade900,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            colors.secondary,
+
+                      const SizedBox(width: 10),
+
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _kCyan,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'NEW',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: _kCarbon,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
+
+                  const SizedBox(height: 16),
+
+                  // ── LOADING ─────────────────────────────────────
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 40),
+                      child: Center(
+                        child: CircularProgressIndicator(color: _kCyan),
+                      ),
+                    ),
+
+                  // ── ERROR ───────────────────────────────────────
+                  if (snapshot.hasError)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: _kSurface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: _kBorderDim, width: 1.5),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Icons.error_outline_rounded,
+                            color: _kMagenta,
+                            size: 42,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'No se pudieron cargar las lecciones',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _kBone,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // ── EMPTY ───────────────────────────────────────
+                  if (snapshot.hasData && snapshot.data!.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: _kSurface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: _kBorderDim, width: 1.5),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Icons.auto_stories_outlined,
+                            color: _kCyan,
+                            size: 42,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'No hay lecciones disponibles',
+                            style: TextStyle(
+                              color: _kBone,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // ── LISTADO ─────────────────────────────────────
+                  if (snapshot.hasData && snapshot.data!.isNotEmpty)
+                    ...snapshot.data!.map(
+                      (lesson) => Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: LessonCard(lesson: lesson),
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 25),
-
-              // --- LISTA DE LECCIONES (Asíncrona) ---
-              // Usamos Expanded para que el FutureBuilder tome el espacio restante
-              Expanded(
-                child: FutureBuilder<List<LessonModel>>(
-                  future: lessonRepo.fetchLessons(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    }
-
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('No hay lecciones disponibles por ahora.'),
-                      );
-                    }
-
-                    final lessonsList = snapshot.data!;
-
-                    return ListView.builder(
-                      padding: EdgeInsets
-                          .zero, // Cero para evitar doble padding con el exterior
-                      itemCount: lessonsList.length,
-                      itemBuilder: (context, index) {
-                        final lesson = lessonsList[index];
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: LessonCard(lesson: lesson),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

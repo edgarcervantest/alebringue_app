@@ -18,7 +18,7 @@ class LessonCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Ajustado un poco el vertical
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF131313),
+        color: const Color(0xFF1C1C1C),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: const Color(0xFF373737), width: 2),
       ),

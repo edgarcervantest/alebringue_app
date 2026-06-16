@@ -363,14 +363,16 @@ class _LessonContentPageState extends State<LessonContentPage> {
             const SizedBox(height: 24),
             Text(
               'Palabra $current de $total',
-              style: const TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
             Card(
               margin: const EdgeInsets.symmetric(horizontal: 20),
+              color: Color(0xFF1C1C1C),
+              
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: const BorderSide(color: Color(0xFF373737), width: 1.5)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
@@ -400,7 +402,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
                     const SizedBox(height: 8),
                     Text(
                       word.pronunciation,
-                      style: const TextStyle(fontSize: 18, color: Colors.grey, fontStyle: FontStyle.italic),
+                      style: const TextStyle(fontSize: 18, color: Colors.white, fontStyle: FontStyle.italic),
                     ),
                     const SizedBox(height: 20),
                     IconButton(
@@ -507,7 +509,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
 
     if (evaluation != null) {
       // Determinación estricta de colores sólidos basados en tu paleta estable de código
-      Color boxBackgroundColor = Colors.transparent; // Fondo claro plano de seguridad
+      Color boxBackgroundColor = Color(0xFF1C1C1C); // Fondo claro plano de seguridad
       Color scoreColor = const Color(0xFFE0007C); // Magenta Alebrijes básico por defecto
 
       if (evaluation.isPerfect) {
@@ -521,7 +523,6 @@ class _LessonContentPageState extends State<LessonContentPage> {
       }
 
       // Si el puntaje es muy bajo y hay errores de acento, usamos el fondo gris/rojo sólido sin opacidades
-      final Color textColor = boxBackgroundColor == const Color(0xFF131313) ? Colors.white : const Color(0xFF131313);
 
       return AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -543,7 +544,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
                   child: RichText(
                     text: TextSpan(
                       text: 'Escuché: ',
-                      style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Grotesque'),
                       children: [
                         TextSpan(
                           text: evaluation.recognizedText.isEmpty ? '[Silencio]' : '"${evaluation.recognizedText}"',
@@ -551,7 +552,8 @@ class _LessonContentPageState extends State<LessonContentPage> {
                             fontSize: 18, 
                             fontWeight: FontWeight.bold, 
                             color: scoreColor,
-                            fontStyle: FontStyle.italic
+                            fontStyle: FontStyle.italic,
+                            fontFamily: 'Grotesque',
                           ),
                         ),
                       ],
@@ -623,7 +625,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
         const SizedBox(width: 4),
         Text(
           isRemote ? 'Procesado en servidor' : 'Motor local (Whisper Offline)',
-          style: const TextStyle(fontSize: 11, color: Color(0xFF373737)),
+          style: const TextStyle(fontSize: 11, color: Colors.white),
         ),
       ],
     );
